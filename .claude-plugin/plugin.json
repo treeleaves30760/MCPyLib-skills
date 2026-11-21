@@ -1,0 +1,14 @@
+{
+  "name": "mcpylib",
+  "displayName": "MCPyLib Skills",
+  "version": "1.0.0",
+  "description": "Agent Skills that teach AI coding agents to control Minecraft (Paper/Spigot 26.1+) servers with the MCPyLib Python library and plugin: setup and API, procedural building, minigames, and the mcpylib-mcp MCP server.",
+  "author": {
+    "name": "treeleaves30760",
+    "url": "https://github.com/treeleaves30760"
+  },
+  "homepage": "https://treeleaves30760.github.io/MCPyLib-website/",
+  "repository": "https://github.com/treeleaves30760/MCPyLib-skills",
+  "license": "LicenseRef-MCPyLib-NonCommercial",
+  "keywords": ["minecraft", "mcpylib", "paper", "spigot", "python", "skills", "mcp"]
+}

@@ -1,0 +1,43 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install validation tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml mcpylib skills-ref pillow
+
+      - name: Check frontmatter, links, scripts, API signatures and manifests
+        run: python tools/validate.py
+
+      - name: Agent Skills reference validator
+        run: |
+          for skill in skills/*/; do
+            agentskills validate "$skill"
+          done
+
+      - name: Smoke tests against the mock MCPyLib plugin
+        run: python tools/smoke_test.py
+
+      - name: Package the skills for Claude.ai
+        run: python tools/package_skills.py --out dist

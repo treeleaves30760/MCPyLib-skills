@@ -1,0 +1,23 @@
+{
+  "name": "mcpylib-skills",
+  "description": "Agent Skills for controlling Minecraft (Paper/Spigot) servers from Python with MCPyLib: the core API, procedural building, minigames and the mcpylib-mcp MCP server.",
+  "owner": {
+    "name": "treeleaves30760"
+  },
+  "plugins": [
+    {
+      "name": "mcpylib",
+      "source": "./",
+      "description": "Four Agent Skills for MCPyLib: core API and setup (mcpylib), procedural building (mcpylib-building), minigames and events (mcpylib-minigames), and the MCP server (mcpylib-mcp).",
+      "author": {
+        "name": "treeleaves30760"
+      },
+      "homepage": "https://treeleaves30760.github.io/MCPyLib-website/",
+      "repository": "https://github.com/treeleaves30760/MCPyLib-skills",
+      "license": "LicenseRef-MCPyLib-NonCommercial",
+      "keywords": ["minecraft", "mcpylib", "paper", "spigot", "python", "skills", "mcp"],
+      "category": "development",
+      "tags": ["minecraft", "game-development", "python"]
+    }
+  ]
+}

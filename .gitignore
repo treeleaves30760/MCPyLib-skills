@@ -1,0 +1,18 @@
+# Build output (tools/package_skills.py)
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets: the MCPyLib token lives here
+.env
+
+# Files the bundled scripts write in their working directory
+mcpylib-undo/
+snapshot_*.json
+koth-state.json
+arena-state.json
+*-state.json.tmp
