@@ -30,7 +30,7 @@ MCPyLib 由 Python 函式庫（`pip install mcpylib` 或 `uv add mcpylib`）和 
 - 執行 Minecraft **26.1 以上**（以 26.3 建置）的 Paper 或 Spigot 伺服器，**Java 25**，
   `plugins/` 裡放 MCPyLib 插件 **1.2.2**。
 - **Python 3.11+** 與客戶端：`pip install mcpylib` 或 `uv add mcpylib`。這些 skill 以
-  1.2.2 客戶端為準；如果套件庫還只有 1.1.1 也能用，只是 `edit()` 走比較慢的路徑、
+  1.2.2 客戶端為準；1.1.1 也能用，只是 `edit()` 走比較慢的路徑、
   重試行為也不同，核心 skill 有說明差異。
 - 插件 token：在伺服器主控台執行 `/mcpylib token` 取得。放在環境變數或加進
   `.gitignore` 的 `.env`：

@@ -3,7 +3,7 @@
 Every client runs the same command:
 
 ```text
-uvx --from git+https://github.com/treeleaves30760/MCPyLib-mcp mcpylib-mcp
+uvx mcpylib-mcp
 ```
 
 with `MCPYLIB_TOKEN` (and, for a remote or non-default server, `MCPYLIB_HOST` and
@@ -23,7 +23,7 @@ with `MCPYLIB_TOKEN` (and, for a remote or non-default server, `MCPYLIB_HOST` an
 ## Claude Code
 
 ```bash
-claude mcp add --env MCPYLIB_TOKEN=<token> --transport stdio mcpylib -- uvx --from git+https://github.com/treeleaves30760/MCPyLib-mcp mcpylib-mcp
+claude mcp add --env MCPYLIB_TOKEN=<token> --transport stdio mcpylib -- uvx mcpylib-mcp
 ```
 
 - Options go before the server name. `--env` takes several `KEY=value` pairs, so
@@ -42,7 +42,7 @@ Shared project file `.mcp.json` (commit it; each user exports `MCPYLIB_TOKEN`):
   "mcpServers": {
     "mcpylib": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/treeleaves30760/MCPyLib-mcp", "mcpylib-mcp"],
+      "args": ["mcpylib-mcp"],
       "env": {
         "MCPYLIB_TOKEN": "${MCPYLIB_TOKEN}",
         "MCPYLIB_HOST": "${MCPYLIB_HOST:-localhost}"
@@ -66,7 +66,7 @@ Open **Settings > Developer > Edit Config**. The file is
   "mcpServers": {
     "mcpylib": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/treeleaves30760/MCPyLib-mcp", "mcpylib-mcp"],
+      "args": ["mcpylib-mcp"],
       "env": {
         "MCPYLIB_TOKEN": "<token>",
         "MCPYLIB_HOST": "localhost",
@@ -90,7 +90,7 @@ Restart Claude Desktop afterwards. If it reports `spawn uvx ENOENT`, it can't fi
   "mcpServers": {
     "mcpylib": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/treeleaves30760/MCPyLib-mcp", "mcpylib-mcp"],
+      "args": ["mcpylib-mcp"],
       "env": { "MCPYLIB_TOKEN": "<token>" }
     }
   }
@@ -120,7 +120,7 @@ token once instead of storing it in the file:
     "mcpylib": {
       "type": "stdio",
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/treeleaves30760/MCPyLib-mcp", "mcpylib-mcp"],
+      "args": ["mcpylib-mcp"],
       "env": { "MCPYLIB_TOKEN": "${input:mcpylib-token}" }
     }
   }
@@ -134,7 +134,7 @@ token once instead of storing it in the file:
 ```toml
 [mcp_servers.mcpylib]
 command = "uvx"
-args = ["--from", "git+https://github.com/treeleaves30760/MCPyLib-mcp", "mcpylib-mcp"]
+args = ["mcpylib-mcp"]
 env_vars = ["MCPYLIB_TOKEN", "MCPYLIB_HOST"]   # forwarded from your shell
 startup_timeout_sec = 60                       # the first uvx run downloads packages
 ```
@@ -142,7 +142,7 @@ startup_timeout_sec = 60                       # the first uvx run downloads pac
 Or from the command line:
 
 ```bash
-codex mcp add mcpylib --env MCPYLIB_TOKEN=<token> -- uvx --from git+https://github.com/treeleaves30760/MCPyLib-mcp mcpylib-mcp
+codex mcp add mcpylib --env MCPYLIB_TOKEN=<token> -- uvx mcpylib-mcp
 ```
 
 Check with `codex mcp list`, or `/mcp` in the Codex TUI.
@@ -153,7 +153,7 @@ For clients that connect to a URL, or to share one server process between client
 start it yourself:
 
 ```bash
-MCPYLIB_TOKEN=<token> uvx --from git+https://github.com/treeleaves30760/MCPyLib-mcp mcpylib-mcp --transport http --port 8000
+MCPYLIB_TOKEN=<token> uvx mcpylib-mcp --transport http --port 8000
 ```
 
 In PowerShell, run `$env:MCPYLIB_TOKEN = "<token>"` first. Then point clients at
@@ -170,7 +170,7 @@ rather than binding it to a public address.
 ## Without uv
 
 ```bash
-pip install git+https://github.com/treeleaves30760/MCPyLib-mcp
+pip install mcpylib-mcp
 mcpylib-mcp --list-tools
 ```
 

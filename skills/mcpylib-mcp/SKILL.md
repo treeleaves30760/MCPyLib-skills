@@ -26,14 +26,14 @@ setup, use the **mcpylib** skill.
    Run `/mcpylib token` in the console (or in game with `mcpylib.admin`) and copy
    the token.
 2. **Runner**: install uv (it provides `uvx`), or use Python 3.11+ with
-   `pip install git+https://github.com/treeleaves30760/MCPyLib-mcp`.
+   `pip install mcpylib-mcp`.
 3. **Check** that the server starts. This needs no token and doesn't connect to
    Minecraft:
    ```bash
-   uvx --from git+https://github.com/treeleaves30760/MCPyLib-mcp mcpylib-mcp --list-tools
+   uvx mcpylib-mcp --list-tools
    ```
-   `uvx` caches the package; add `--refresh` once to pick up newer commits, or append
-   `@<tag-or-commit>` to the URL to pin a version.
+   `uvx` installs it from PyPI and caches it; add `--refresh` once to pick up a new
+   release, or pin one with `uvx mcpylib-mcp@0.1.0`.
 
 ## 2. Add it to a client
 
@@ -41,7 +41,7 @@ Claude Code (options must come before the name, and another option must separate
 `--env` from the name):
 
 ```bash
-claude mcp add --env MCPYLIB_TOKEN=<token> --transport stdio mcpylib -- uvx --from git+https://github.com/treeleaves30760/MCPyLib-mcp mcpylib-mcp
+claude mcp add --env MCPYLIB_TOKEN=<token> --transport stdio mcpylib -- uvx mcpylib-mcp
 ```
 
 Add `--env MCPYLIB_HOST=<ip>` for a remote server and `--scope user` for all projects.
@@ -114,7 +114,7 @@ Other habits:
 - Keep approval prompts on for destructive tools; tools carry MCP read-only and
   destructive annotations.
 - After a timeout the action may still have happened on the server, and with mcpylib
-  1.1.1 (the version PyPI serves today) it is retried once, so `give_item` or
+  1.1.1 it is retried once, so `give_item` or
   `summon_entity` may even have run twice. Check before repeating it.
 - The `build_structure` and `survey_area` prompts and the `minecraft://guide/building`
   resource give a ready-made workflow.
