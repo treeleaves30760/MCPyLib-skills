@@ -68,7 +68,7 @@ Bukkit enum names still work for `facing`, `rotation`, `axis`, `half`, `shape`,
 | open | true, false | doors, trapdoors, fence gates |
 | powered | true, false | levers, buttons, pressure plates... |
 
-Two-block blocks in `edit()` (plugin 1.2.1): give one cell, the door's lower half or
+Two-block blocks in `edit()` (plugin 1.2.1+): give one cell, the door's lower half or
 the bed's foot (`{"block": "red_bed", "block_state": {"facing": "south"}}` or just
 `"red_bed"`), and the other half is added: one block up for doors and tall plants,
 one block toward `facing` for a bed's head. It replaces whatever is there, unless
@@ -92,7 +92,7 @@ lines) are applied. Chest contents (`Items`) are ignored.
 | Redstone dust, repeaters, pistons | Don't update or power | Place redstone by hand, or with setblock in order, and test it |
 | Leaves | Plain ids keep distance=7, persistent=false, and decay over time | Set `persistent: true` |
 | Torches, lanterns, flowers, carpets, rails, buttons | Need support; fine in edit(), but pop off in setblock() without support | Place them after their support block exists |
-| Doors, beds, tall flowers | Work in edit() on plugin 1.2.1 (other half added). fill() places single halves. With setblock() the first half breaks unless placed in order | Use edit(); with setblock(), place the door's upper half or the bed's head first |
+| Doors, beds, tall flowers | Work in edit() on plugin 1.2.2 (other half added). fill() places single halves. With setblock() the first half breaks unless placed in order | Use edit(); with setblock(), place the door's upper half or the bed's head first |
 
 ## Lighting
 

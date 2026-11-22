@@ -12,7 +12,7 @@ Model
     -> setblock() for deferred blocks (light sources) so lighting updates.
 
 Cells are block ids ("stone") or dicts {"block": id, "block_state": {...}}.
-block_state takes any vanilla property of the block (plugin 1.2.1). Rotation
+block_state takes any vanilla property of the block (plugin 1.2.2). Rotation
 remaps facing, rotation (names or 0-15) and axis.
 """
 from __future__ import annotations

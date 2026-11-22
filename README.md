@@ -30,9 +30,9 @@ reads or runs only when needed.
 ## Requirements
 
 - A Paper or Spigot server running Minecraft **26.1 or newer** (built against 26.3) on
-  **Java 25**, with the MCPyLib plugin **1.2.1** in `plugins/`.
+  **Java 25**, with the MCPyLib plugin **1.2.2** in `plugins/`.
 - **Python 3.11+** and the client: `pip install mcpylib` or `uv add mcpylib`. The skills
-  target client 1.2.1. If your package index still serves 1.1.1, it works too, with a
+  target client 1.2.2. If your package index still serves 1.1.1, it works too, with a
   slower `edit()` path and older retry behaviour; the core skill explains the
   differences.
 - The plugin token, from `/mcpylib token` in the server console. Keep it in the
@@ -141,7 +141,7 @@ skills/
 tools/
   validate.py          frontmatter, links, py_compile, API signatures, manifests
   smoke_test.py        runs every script against tools/mock_server.py
-  mock_server.py       offline stand-in for the MCPyLib 1.2.1 plugin protocol
+  mock_server.py       offline stand-in for the MCPyLib 1.2.2 plugin protocol
   package_skills.py    builds dist/<skill>.zip for Claude.ai
 AGENTS.md              instructions for agents working in this repository
 ```

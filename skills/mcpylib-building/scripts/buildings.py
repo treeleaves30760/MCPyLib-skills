@@ -8,7 +8,7 @@
 The front (door) faces the player when --player is used, otherwise --front
 (default south). Windows are full glass blocks, because panes placed by edit()
 don't connect. The door is placed by edit() with both halves given explicitly
-(needs plugin 1.2.1; older plugins break the halves), so both cells are in the
+(needs plugin 1.2.2; older plugins break the halves), so both cells are in the
 survey and undo file; --door none leaves an open doorway. Torches are placed
 last with setblock() so their light updates. The interior is cleared to air
 unless --no-clear is given.

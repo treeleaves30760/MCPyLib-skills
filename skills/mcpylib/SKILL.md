@@ -2,28 +2,28 @@
 name: mcpylib
 description: Controls a Minecraft Paper/Spigot server from Python with the MCPyLib library and its server plugin. Covers setup checks (plugin, token, .env), connecting, coordinates and the -64..319 build height, block ids with block_state and NBT, choosing between setblock, fill, edit bulk arrays, clone and getblocks, batching for speed, error handling, and safe read-before-write editing, plus players, entities, chat, world settings and the raw TCP JSON protocol for other languages. Use when the user mentions MCPyLib or mcpylib, wants a script that places, reads or changes blocks, players, entities or settings on a Minecraft server, or hits MCPyLib connection, token or plugin errors.
 license: MCPyLib Non-Commercial License with Commercial Exception. Complete terms in LICENSE.txt
-compatibility: Requires Python 3.11+, the mcpylib package (1.2.1 recommended) and TCP access to a Paper/Spigot 26.1+ server (Java 25) running the MCPyLib plugin, port 65535 by default.
+compatibility: Requires Python 3.11+, the mcpylib package (1.2.2 recommended) and TCP access to a Paper/Spigot 26.1+ server (Java 25) running the MCPyLib plugin, port 65535 by default.
 metadata:
   author: treeleaves30760
   version: "1.1.0"
-  mcpylib-version: "1.2.1"
+  mcpylib-version: "1.2.2"
 ---
 
 # MCPyLib core
 
 MCPyLib = a Python client (`pip install mcpylib` or `uv add mcpylib`) plus the
-`MCPyLib-Plugin-1.2.1.jar` server plugin. The plugin opens a TCP socket (default
+`MCPyLib-Plugin-1.2.2.jar` server plugin. The plugin opens a TCP socket (default
 65535). The client sends newline-delimited JSON commands with a token, and the
 plugin runs each command on the server's main thread.
 
-Everything below is checked against `client.py` and the plugin source of 1.2.1.
+Everything below is checked against `client.py` and the plugin source of 1.2.2.
 For the full method list read [references/api.md](references/api.md). For other
 languages read [references/protocol.md](references/protocol.md). When something
 fails, see [references/troubleshooting.md](references/troubleshooting.md).
 
 ## 1. Setup check (do this first)
 
-1. **Server**: Paper or Spigot 26.1+ on Java 25, with `MCPyLib-Plugin-1.2.1.jar` in
+1. **Server**: Paper or Spigot 26.1+ on Java 25, with `MCPyLib-Plugin-1.2.2.jar` in
    `plugins/`. `/plugins` lists MCPyLib, and the console prints
    `Server listening on ...` and `Authentication token: ...` at startup.
 2. **Token**: run `/mcpylib token` in the console or as op (aliases `/mcpy`, `/mcp`),
@@ -34,7 +34,7 @@ fails, see [references/troubleshooting.md](references/troubleshooting.md).
    Check the version with `importlib.metadata.version("mcpylib")`, not
    `mcpylib.__version__` (the 1.1.1 wheel reports "1.0.2"). A 1.2.x client needs a
    1.2.x plugin for `edit()`; older clients work, but use a slower `edit()` path.
-   Doors and beds in `edit()` need plugin 1.2.1.
+   Doors and beds in `edit()` need plugin 1.2.1+.
 4. **Settings**: keep the token out of code. Put it in a git-ignored `.env`, using the
    same variable names as the mcpylib-mcp server:
    ```
@@ -149,7 +149,7 @@ blocks with `setblock()` afterwards. Dict cells with `block_state` or `nbt`, and
 block-entity blocks such as `"chest"` or signs, go through a slower Bukkit pass, so
 they get proper block entities.
 
-Doors, beds and tall plants work in `edit()` (plugin 1.2.1). Give one cell (the
+Doors, beds and tall plants work in `edit()` (plugin 1.2.1+). Give one cell (the
 door's lower half, the bed's foot, or just `"red_bed"`) and the plugin adds the
 other half (door: one block up; bed: the head, one block toward `facing`), replacing
 whatever is there, unless the array sets that position itself. With both halves in

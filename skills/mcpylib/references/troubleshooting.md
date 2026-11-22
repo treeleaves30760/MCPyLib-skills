@@ -2,7 +2,7 @@
 
 Start with `python scripts/check_setup.py --player <name>`. It is read-only and tells
 you which layer is failing. Each entry below lists a symptom, its cause in the
-1.2.1 code, and the fix.
+1.2.2 code, and the fix.
 
 ## Contents
 
@@ -69,7 +69,7 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
 **`edit()` fails with `Missing parameters: x, y, z, blocks`**
 - **Cause:** a 1.2.x client is talking to a plugin older than 1.2.0, which only
   understands the legacy array format.
-- **Fix:** install `MCPyLib-Plugin-1.2.1.jar`, or pin the client to the plugin's
+- **Fix:** install `MCPyLib-Plugin-1.2.2.jar`, or pin the client to the plugin's
   version.
 
 **`Unknown action: <name>`**
@@ -142,7 +142,7 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
   when its partner is missing.
 - **Fix:** with `setblock`, place the door's `half=upper` first and then
   `half=lower`, or the bed's `part=head` first and then `part=foot`. Or use
-  `edit()` on plugin 1.2.1: give one cell (door's lower half, bed's foot, or just
+  `edit()` on plugin 1.2.1+: give one cell (door's lower half, bed's foot, or just
   `"red_bed"`) and the other half is added.
 - **Cause (`edit()`, plugin older than 1.2.1):** dict cells ran with block updates,
   so halves broke each other. Update the plugin.
@@ -204,7 +204,7 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
 - **Cause:** plugins older than 1.2.0 wait for a second main-thread task while
   already running on the main thread, which is a deadlock. The watchdog then
   reports the server as unresponsive.
-- **Fix:** restart the server and update the plugin to 1.2.1 (1.2.0 fixed this).
+- **Fix:** restart the server and update the plugin to 1.2.2 (1.2.0 fixed this).
   Until then, use the dedicated methods instead (see
   [api.md](api.md#console-command-wrappers)).
 

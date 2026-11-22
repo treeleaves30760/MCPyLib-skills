@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline stand-in for the MCPyLib 1.2.1 server plugin, used by smoke_test.py.
+"""Offline stand-in for the MCPyLib 1.2.2 server plugin, used by smoke_test.py.
 
 It speaks the plugin's protocol: one JSON request per line,
 {"token", "action", "params"}, answered by {"success": true, "data": ...} or
@@ -160,6 +160,11 @@ class World:
         return "minecraft:" + n
 
     @staticmethod
+    def item_hint(name) -> str:
+        n = str(name).lower().removeprefix("minecraft:")
+        return " (this is an item, not a placeable block)" if n in NOT_BLOCKS else ""
+
+    @staticmethod
     def check_state(state) -> dict:
         if not isinstance(state, dict):
             raise MockError("block_state must be an object")
@@ -170,7 +175,7 @@ class World:
             if k not in STATE_VALUES:
                 raise MockError(f"Unsupported property '{key}={value}'")
             if v not in STATE_VALUES[k]:
-                raise MockError(f"No enum constant for {k}: {value}")
+                raise MockError(f"Unsupported property '{key}={value}'")
             out[k] = v
         return out
 
@@ -247,7 +252,7 @@ class World:
     def do_setblock(self, x, y, z, block, block_state=None, nbt=None):
         mat = self.material(block)
         if mat is None:
-            raise MockError(f"Invalid block type: {block}")
+            raise MockError(f"Invalid block type: {block}{self.item_hint(block)}")
         state = None
         if block_state is not None:
             try:
@@ -261,7 +266,7 @@ class World:
     def do_fill(self, x1, y1, z1, x2, y2, z2, block):
         mat = self.material(block)
         if mat is None:
-            raise MockError(f"Invalid block type: {block}")
+            raise MockError(f"Invalid block type: {block}{self.item_hint(block)}")
         xa, xb = sorted((int(x1), int(x2)))
         ya, yb = sorted((int(y1), int(y2)))
         za, zb = sorted((int(z1), int(z2)))
@@ -287,14 +292,14 @@ class World:
         if isinstance(value, str):
             mat = self.material(value)
             if mat is None:
-                raise MockError(f"Invalid block type in {where}: {value}")
+                raise MockError(f"Invalid block type in {where}: {value}{self.item_hint(value)}")
             return mat, None
         if isinstance(value, dict):
             if "block" not in value:
                 raise MockError(f"Missing 'block' field in {where}")
             mat = self.material(value["block"])
             if mat is None:
-                raise MockError(f"Invalid block type in {where}: {value['block']}")
+                raise MockError(f"Invalid block type in {where}: {value['block']}{self.item_hint(value['block'])}")
             state = self.check_state(value["block_state"]) if "block_state" in value else None
             return mat, state
         raise MockError(f"Bad cell in {where}: {value!r}")

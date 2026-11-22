@@ -2,11 +2,11 @@
 name: mcpylib-minigames
 description: Builds Minecraft minigames and live events in Python with MCPyLib. Covers fixed-rate polling loops with a per-tick call budget, join and leave detection, zones, countdowns, scoreboards and sidebars, teams, boss bars, titles, sounds and particles, summoning and controlling mobs (targets, AI, equipment, tags), and crash-safe cleanup that removes every entity, objective, boss bar and temporary block a game created. Includes ready-to-run King of the Hill and mob arena games. Use when the user wants a minigame, arena, race, parkour timer, wave survival, scoreboard, boss bar, countdown, announcement or other interactive event on a Minecraft server driven by Python, or needs to poll player positions or clean up after a game. Builds on the mcpylib skill for connection and API details.
 license: MCPyLib Non-Commercial License with Commercial Exception. Complete terms in LICENSE.txt
-compatibility: Requires Python 3.11+, the mcpylib package (1.2.1 recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin.
+compatibility: Requires Python 3.11+, the mcpylib package (1.2.2 recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin.
 metadata:
   author: treeleaves30760
   version: "1.1.0"
-  mcpylib-version: "1.2.1"
+  mcpylib-version: "1.2.2"
 ---
 
 # Minigames with MCPyLib

@@ -2,11 +2,11 @@
 name: mcpylib-building
 description: Procedural Minecraft building with MCPyLib in pure Python (no numpy). Generates spheres, domes, cylinders, cones, pyramids, tori, houses, towers, pixel art from images and heightmap or noise terrain as rectangular block arrays, then places them with edit() in chunk-sized batches with a dry-run plan, overwrite protection and an undo file. Use when the user asks to build, generate or draw something in a Minecraft world with code, such as shapes, buildings, statues, image or pixel art, landscapes, mazes or other large structures, or wants faster bulk placement than setblock loops. Builds on the mcpylib skill for connection and API details.
 license: MCPyLib Non-Commercial License with Commercial Exception. Complete terms in LICENSE.txt
-compatibility: Requires Python 3.11+, the mcpylib package (1.2.1 recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin. Pillow is optional (non-PNG images).
+compatibility: Requires Python 3.11+, the mcpylib package (1.2.2 recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin. Pillow is optional (non-PNG images).
 metadata:
   author: treeleaves30760
   version: "1.1.0"
-  mcpylib-version: "1.2.1"
+  mcpylib-version: "1.2.2"
 ---
 
 # Procedural building with MCPyLib
@@ -97,7 +97,7 @@ without buildkit, follow the core skill's rules:
 - Keep each call to about 65,536 cells, split at chunk borders.
 - `getblocks` the box first and report what would be replaced.
 
-## Design rules that matter with MCPyLib 1.2.1
+## Design rules that matter with MCPyLib 1.2.2
 
 - **States**: `block_state` takes any vanilla property with vanilla values, such as
   slab `type: top`/`double`, leaves `persistent: true` (otherwise they decay),

@@ -1,4 +1,4 @@
-# MCPyLib wire protocol (plugin 1.2.1)
+# MCPyLib wire protocol (plugin 1.2.2)
 
 Use this to talk to the MCPyLib plugin from any language. It is derived from the
 plugin source (`ClientHandler.java`, `CommandHandler.java`, `TokenManager.java`).

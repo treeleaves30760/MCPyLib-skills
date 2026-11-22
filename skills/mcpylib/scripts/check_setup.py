@@ -154,7 +154,7 @@ def main() -> int:
         if "Missing parameters" in str(exc):
             report("WARN", "edit() format",
                    "plugin is older than the client; update the server to "
-                   "MCPyLib-Plugin-1.2.1.jar (edit() will fail until then)")
+                   "MCPyLib-Plugin-1.2.2.jar (edit() will fail until then)")
         else:
             report("WARN", "edit() format", str(exc))
 

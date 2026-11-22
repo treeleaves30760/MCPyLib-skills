@@ -1,4 +1,4 @@
-# MCPyLib API reference (client and plugin 1.2.1)
+# MCPyLib API reference (client and plugin 1.2.2)
 
 Every signature line below matches `mcpylib/client.py` (checked by
 `tools/validate.py`). The behaviour notes come from the plugin's
@@ -73,9 +73,9 @@ Retries differ by client version:
 (`0`-`15`), `power` and so on. Values are sent as strings; numbers and booleans are
 converted. Bukkit enum aliases still work for `facing`, `rotation` (`north`,
 `south_south_west`), `axis`, `half` (`top`/`bottom`), `shape`, `waterlogged`, `open`
-and `powered`. Any other key that the block doesn't have fails with
-`Unsupported property '<key>=<value>' for minecraft:<id>`; those eight alias names
-are ignored on blocks that lack them. NBT keys that work: `CustomName` (containers,
+and `powered`. Any key the block doesn't have, or a bad value, fails with
+`Unsupported property '<key>=<value>' for minecraft:<id>` (plugin 1.2.1 ignored
+the eight alias names on blocks that lack them). NBT keys that work: `CustomName` (containers,
 plain text) and `Text1`..`Text4` (sign front lines). Other NBT keys are ignored.
 
 ### setblock
@@ -148,12 +148,10 @@ counted; halves added for doors and beds are not counted).
   head, one block toward `facing`), replacing whatever is there, unless the array
   sets that position itself. With both halves given, any order works.
 - `Invalid block type in palette[i]: <name>` aborts before anything is written.
-  This includes item ids (`brick`, `diamond`).
-- An unsupported `block_state` key aborts with
-  `Failed to bulk edit (compressed): Unsupported property '<key>=<value>' for
-  minecraft:<id>`. On the fast path
-  every string cell was already written; on the Bukkit path only the cells before
-  the failing one (in x, y, z order).
+  Item ids (`brick`, `diamond`) add `(this is an item, not a placeable block)`.
+- An unsupported `block_state` key also aborts before anything is written:
+  `Invalid block_state in palette[i]: Unsupported property '<key>=<value>' for
+  minecraft:<id>`.
 
 ### clone
 `mc.clone(x1, y1, z1, x2, y2, z2, dest_x, dest_y, dest_z) -> int`

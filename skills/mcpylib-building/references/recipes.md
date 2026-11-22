@@ -92,7 +92,7 @@ whatever is there, leave those cells out (`None`).
 - a gable roof with an attic cleared to air
 - four torches, placed last with setblock
 
-Extensions that work with plugin 1.2.1:
+Extensions that work with plugin 1.2.2:
 - Interior walls: `grid.box(...)` with planks.
 - A second floor: a full plank layer, plus a ladder with `facing` pointing away from
   its wall.
