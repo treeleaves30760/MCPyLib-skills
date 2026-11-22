@@ -12,8 +12,8 @@ Model
     -> setblock() for deferred blocks (light sources) so lighting updates.
 
 Cells are block ids ("stone") or dicts {"block": id, "block_state": {...}}.
-Use only block_state keys MCPyLib 1.2.0 supports: facing, rotation, axis,
-half, shape, waterlogged, open, powered.
+block_state takes any vanilla property of the block (plugin 1.2.1). Rotation
+remaps facing, rotation (names or 0-15) and axis.
 """
 from __future__ import annotations
 
@@ -128,6 +128,8 @@ def rotate_cell(cell, turns: int):
     rot = state.get("rotation")
     if rot in ROT16:
         state["rotation"] = ROT16[(ROT16.index(rot) + 4 * turns) % 16]
+    elif str(rot).isdigit() and int(rot) < 16:  # vanilla 0-15, 0 = south, clockwise
+        state["rotation"] = str((int(rot) + 4 * turns) % 16)
     if turns % 2 and state.get("axis") in ("x", "z"):
         state["axis"] = "z" if state["axis"] == "x" else "x"
     out = dict(cell)

@@ -7,7 +7,7 @@ Block ids are modern vanilla ids, the Bukkit material names in lower case. The
 
 - [Palettes by purpose](#palettes-by-purpose)
 - [Ids that trip people up](#ids-that-trip-people-up)
-- [States you can and cannot set](#states-you-can-and-cannot-set)
+- [States you can set](#states-you-can-set)
 - [Blocks that misbehave without physics](#blocks-that-misbehave-without-physics)
 - [Lighting](#lighting)
 - [Colour families for pixel art](#colour-families-for-pixel-art)
@@ -36,48 +36,53 @@ Block ids are modern vanilla ids, the Bukkit material names in lower case. The
   `sign`.
 - There are no generic ids such as `planks`, `log`, `wool` or `concrete`: pick a
   colour or wood type, such as `oak_planks` or `white_wool`.
-- Items are not blocks: `setblock(..., "diamond")` fails with `Failed to set block`,
-  and `edit()` silently skips such cells. `"diamond_block"` works.
+- Items are not blocks: `setblock`, `fill` and `edit()` reject `"diamond"` with
+  `Invalid block type: diamond (this is an item, not a placeable block)`.
+  `"diamond_block"` works.
 - Air comes in three types: `air`, `cave_air`, `void_air`. Treat all three as empty
   when reading.
 
-## States you can and cannot set
+## States you can set
 
-MCPyLib 1.2.0 applies only these `block_state` keys. Others fail with
-`Unsupported property`.
+`block_state` takes any vanilla property of the block, with vanilla values written
+as strings. A key the block doesn't have fails with `Unsupported property`.
+Bukkit enum names still work for `facing`, `rotation`, `axis`, `half`, `shape`,
+`waterlogged`, `open` and `powered`.
 
 | Key | Values | Used by |
 |---|---|---|
-| facing | north, south, east, west (up, down for some) | stairs, furnaces, chests, ladders, wall signs, wall torches, observers, trapdoors, gates |
-| rotation | south, south_south_west, ..., north, ..., south_south_east (16 names) | standing signs, banners, heads |
+| facing | north, south, east, west (up, down for some) | stairs, furnaces, chests, ladders, wall signs, wall torches, observers, trapdoors, gates, doors, beds |
+| rotation | 0-15 (0 = south, 4 = west, 8 = north, 12 = east), or names such as south_south_west | standing signs, banners, heads |
 | axis | x, y, z | logs, pillars, basalt, chains |
-| half | top, bottom | stairs, trapdoors, door halves |
+| half | top, bottom (stairs, trapdoors); lower, upper (doors, tall plants) | |
 | shape | straight, inner_left, inner_right, outer_left, outer_right | stairs |
+| type | bottom, top, double (slabs); single, left, right (chests) | slabs, chests |
+| part | foot, head | beds |
+| hinge | left, right | doors |
+| lit | true, false | furnaces, campfires, redstone lamps, candles |
+| persistent | true, false | leaves (true = never decays) |
+| layers | 1-8 | snow |
+| age | 0-7 for most crops | wheat, carrots, potatoes, ... |
+| hanging | true, false | lanterns |
 | waterlogged | true, false | slabs, stairs, fences, lanterns... |
 | open | true, false | doors, trapdoors, fence gates |
 | powered | true, false | levers, buttons, pressure plates... |
 
-What you therefore **cannot** build, and what to do instead:
-
-| Can't build | Why | Instead |
-|---|---|---|
-| Top or double slabs | `type` | Use full blocks |
-| Beds | `part` | Leave the space, or let players place them |
-| Proper doors | `hinge`, and the halves get broken by physics | Leave a 1x2 opening |
-| Lit furnaces or campfires | `lit` | |
-| Snow layers | `layers` | |
-| Persistent leaves | `persistent` | |
-| Crop growth stages | `age` | |
-| Hanging lanterns | `hanging` | Place a standing lantern on a block |
-| Connected double chests | `type` | |
+Two-block blocks in `edit()` (plugin 1.2.1): give one cell, the door's lower half or
+the bed's foot (`{"block": "red_bed", "block_state": {"facing": "south"}}` or just
+`"red_bed"`), and the other half is added: one block up for doors and tall plants,
+one block toward `facing` for a bed's head. It replaces whatever is there, unless
+the array sets that position itself. With both halves in the array, any order works.
+A double chest needs two cells, `type: left` and `type: right`, with the same
+`facing`.
 
 NBT: only `CustomName` (containers, plain text) and `Text1`..`Text4` (sign front
 lines) are applied. Chest contents (`Items`) are ignored.
 
 ## Blocks that misbehave without physics
 
-`edit()` and `fill()` skip physics and neighbour updates. Dict cells in `edit()`
-and every `setblock()` do run physics.
+`edit()` and `fill()` write without block updates, dict cells in `edit()` included.
+`setblock()` runs physics.
 
 | Block type | What happens with edit/fill | Workaround |
 |---|---|---|
@@ -85,10 +90,9 @@ and every `setblock()` do run physics.
 | Water, lava | Placed as still source blocks; flow starts on the next nearby update | Enclose them fully, or keep them away from open edges |
 | Fences, glass panes, iron bars, walls | Show as unconnected posts | Use full blocks (glass, stone walls built from bricks) |
 | Redstone dust, repeaters, pistons | Don't update or power | Place redstone by hand, or with setblock in order, and test it |
-| Leaves | Keep distance=7, persistent=false, and decay over time | Use non-decaying foliage blocks |
+| Leaves | Plain ids keep distance=7, persistent=false, and decay over time | Set `persistent: true` |
 | Torches, lanterns, flowers, carpets, rails, buttons | Need support; fine in edit(), but pop off in setblock() without support | Place them after their support block exists |
-| Doors, beds, tall flowers, big dripleaf | Multi-block; halves don't pair up | Avoid them, or place them by hand |
-| Chests next to chests | Stay single chests (no `type`) | Space them apart |
+| Doors, beds, tall flowers | Work in edit() on plugin 1.2.1 (other half added). fill() places single halves. With setblock() the first half breaks unless placed in order | Use edit(); with setblock(), place the door's upper half or the bed's head first |
 
 ## Lighting
 

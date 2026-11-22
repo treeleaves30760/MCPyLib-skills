@@ -2,7 +2,7 @@
 
 Start with `python scripts/check_setup.py --player <name>`. It is read-only and tells
 you which layer is failing. Each entry below lists a symptom, its cause in the
-1.2.0 code, and the fix.
+1.2.1 code, and the fix.
 
 ## Contents
 
@@ -67,16 +67,16 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
 ## Version mismatches
 
 **`edit()` fails with `Missing parameters: x, y, z, blocks`**
-- **Cause:** a 1.2.0 client is talking to a plugin older than 1.2.0, which only
+- **Cause:** a 1.2.x client is talking to a plugin older than 1.2.0, which only
   understands the legacy array format.
-- **Fix:** install `MCPyLib-Plugin-1.2.0.jar`, or pin the client to the plugin's
+- **Fix:** install `MCPyLib-Plugin-1.2.1.jar`, or pin the client to the plugin's
   version.
 
 **`Unknown action: <name>`**
 - **Cause:** the plugin is older than the client and lacks that action.
 
 **The plugin doesn't load**
-- **Cause:** plugin 1.2.0 needs Java 25 and Paper/Spigot 26.1+ (`api-version: 26.1`).
+- **Cause:** plugin 1.2.x needs Java 25 and Paper/Spigot 26.1+ (`api-version: 26.1`).
   On older setups the console shows `UnsupportedClassVersionError` or an API-version
   error.
 
@@ -91,10 +91,10 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
 |---|---|
 | `Player not found: X` | X is offline or misspelt. `getPos`, `teleport`, `gamemode` and `give` need the exact name (case-insensitive). Boss bar `addplayer`/`removeplayer` say just `Player not found` |
 | `Invalid block type: X` | Unknown name (typo, modded `namespace:id`, or an upper-case `MINECRAFT:` prefix). Nothing was placed |
-| `Failed to set block: ...` / `Failed to fill region: ...` | Often an item id such as `brick` (the block is `bricks`) or `diamond` (`diamond_block`). Inside `edit()` such cells are silently skipped instead |
-| `Invalid block type in palette[i]: X` | Unknown name inside an `edit()` array. Nothing was written |
-| `Failed to set block state 'rotation': No enum constant ...BlockFace.0` | `rotation` takes direction names such as `south` or `north_north_east`, not 0-15 |
-| `... Unsupported property: type` (or `part`, `hinge`, `lit`, `persistent`, ...) | Only facing, rotation, axis, half, shape, waterlogged, open and powered work. The block was still placed in its default state |
+| `Invalid block type: X (this is an item, not a placeable block)` | An item id such as `brick` (the block is `bricks`) or `diamond` (`diamond_block`). Nothing was placed |
+| `Invalid block type in palette[i]: X` | Unknown name or item id inside an `edit()` array. Nothing was written |
+| `... Unsupported property 'K=V' for minecraft:X` | That block has no property `K`, or `V` is not a valid value for it. Check the vanilla block states (F3 debug screen or the wiki). With `setblock` the block was still placed in its default state |
+| `... No enum constant org.bukkit.block.BlockFace.X` | A bad value for `facing` or `rotation`. Use vanilla values (`north`, `0`-`15`) |
 | `Region too large (max 32768 blocks): N` | `clone` limit. Split the region |
 | `Amount must be between 1 and 64` | `give` limit. Call it several times |
 | `Value out of range: N (valid: 0-24000)` | `time("set", ...)` limit. Use `add` for relative changes |
@@ -133,15 +133,19 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
 - **Cause:** `getblocks` returns types only, so restores use default states.
 
 **Leaves vanish over time**
-- **Cause:** leaves placed by `edit` or `fill` keep their default
-  `distance=7, persistent=false` state and decay. `persistent` cannot be set through
-  plugin 1.2.0.
-- **Fix:** use non-decaying blocks for decoration.
+- **Cause:** leaves placed as plain ids keep their default
+  `distance=7, persistent=false` state and decay.
+- **Fix:** place them with `{"block": "oak_leaves", "block_state": {"persistent": "true"}}`.
 
 **Half doors or half beds**
-- **Cause:** they are two-block structures and need states the plugin can't set
-  (`part`, `hinge`).
-- **Fix:** leave openings, or place them by hand.
+- **Cause (`setblock`):** each call runs physics, so the half placed first breaks
+  when its partner is missing.
+- **Fix:** with `setblock`, place the door's `half=upper` first and then
+  `half=lower`, or the bed's `part=head` first and then `part=foot`. Or use
+  `edit()` on plugin 1.2.1: give one cell (door's lower half, bed's foot, or just
+  `"red_bed"`) and the other half is added.
+- **Cause (`edit()`, plugin older than 1.2.1):** dict cells ran with block updates,
+  so halves broke each other. Update the plugin.
 
 **A chest named `{"text":"..."}`**
 - **Cause:** `CustomName` is plain text.
@@ -183,7 +187,7 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
   - Avoid `locate` on large worlds.
 
 **`Timed out after ...s waiting for '<action>'`, or an operation ran twice**
-- **Cause:** the reply took longer than the client's `timeout`. The 1.2.0 client
+- **Cause:** the reply took longer than the client's `timeout`. A 1.2.x client
   raises `MCConnectionError` and doesn't retry, but the command may still have run
   on the server. A 1.1.x client re-sends it once (so it can run twice) and raises
   `TimeoutError`.
@@ -200,7 +204,7 @@ you which layer is failing. Each entry below lists a symptom, its cause in the
 - **Cause:** plugins older than 1.2.0 wait for a second main-thread task while
   already running on the main thread, which is a deadlock. The watchdog then
   reports the server as unresponsive.
-- **Fix:** restart the server and update the plugin to 1.2.0, which fixed this.
+- **Fix:** restart the server and update the plugin to 1.2.1 (1.2.0 fixed this).
   Until then, use the dedicated methods instead (see
   [api.md](api.md#console-command-wrappers)).
 

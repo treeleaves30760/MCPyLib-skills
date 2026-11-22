@@ -2,11 +2,11 @@
 name: mcpylib-building
 description: Procedural Minecraft building with MCPyLib in pure Python (no numpy). Generates spheres, domes, cylinders, cones, pyramids, tori, houses, towers, pixel art from images and heightmap or noise terrain as rectangular block arrays, then places them with edit() in chunk-sized batches with a dry-run plan, overwrite protection and an undo file. Use when the user asks to build, generate or draw something in a Minecraft world with code, such as shapes, buildings, statues, image or pixel art, landscapes, mazes or other large structures, or wants faster bulk placement than setblock loops. Builds on the mcpylib skill for connection and API details.
 license: MCPyLib Non-Commercial License with Commercial Exception. Complete terms in LICENSE.txt
-compatibility: Requires Python 3.11+, the mcpylib package (1.2.0+ recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin. Pillow is optional (non-PNG images).
+compatibility: Requires Python 3.11+, the mcpylib package (1.2.1 recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin. Pillow is optional (non-PNG images).
 metadata:
   author: treeleaves30760
-  version: "1.0.0"
-  mcpylib-version: "1.2.0"
+  version: "1.1.0"
+  mcpylib-version: "1.2.1"
 ---
 
 # Procedural building with MCPyLib
@@ -42,7 +42,7 @@ Run these from this skill's `scripts/` directory (they import `buildkit.py`):
 | Script | Builds | Example |
 |---|---|---|
 | `scripts/shapes.py` | sphere, dome, cylinder, cone, pyramid (optional stairs), torus, box | `python shapes.py dome --radius 10 --block glass --hollow --player Steve` |
-| `scripts/buildings.py` | `house` (gable roof, windows, doorway, torches), `tower` (battlements or cone roof, ladder) | `python buildings.py house --width 9 --depth 7 --player Steve` |
+| `scripts/buildings.py` | `house` (gable roof, windows, door, torches), `tower` (battlements or cone roof, ladder) | `python buildings.py house --width 9 --depth 7 --player Steve` |
 | `scripts/pixel_art.py` | image to wall or floor art (concrete, wool, terracotta or full palette, optional dithering) | `python pixel_art.py logo.png --width 64 --player Steve` |
 | `scripts/terrain.py` | noise or heightmap landscape with soil layers, beaches, lakes and snow | `python terrain.py --at 1000 -500 --size 96 96 --survey` |
 | `scripts/undo.py` | restores an undo file (skips cells players changed since) | `python undo.py mcpylib-undo/undo-house-....jsonl --apply` |
@@ -97,19 +97,24 @@ without buildkit, follow the core skill's rules:
 - Keep each call to about 65,536 cells, split at chunk borders.
 - `getblocks` the box first and report what would be replaced.
 
-## Design rules that matter with MCPyLib 1.2.0
+## Design rules that matter with MCPyLib 1.2.1
 
-- **Only these states work**: `facing`, `rotation`, `axis`, `half` (top/bottom),
-  `shape`, `waterlogged`, `open`, `powered`. Slabs therefore stay bottom slabs, beds
-  and doors can't be assembled (leave doorways open), and leaves can't be made
-  persistent, so they decay. Use non-decaying blocks for foliage.
+- **States**: `block_state` takes any vanilla property with vanilla values, such as
+  slab `type: top`/`double`, leaves `persistent: true` (otherwise they decay),
+  lantern `hanging`, `lit`, sign `rotation: 0-15`. A key the block doesn't have
+  raises `Unsupported property`.
+- **Doors and beds**: in `edit()`, give one cell (door's lower half, bed's foot, or
+  just `"red_bed"`) and the plugin adds the other half, replacing whatever is there
+  unless the array sets that cell. Giving both halves yourself keeps them in the
+  survey and undo file. With `setblock()`, place the upper half or the head first.
 - **Stairs face their full side**: `facing` is where the tall back of the step is,
   so a slope rises toward its `facing`. On a gable roof, the south slope uses
   `facing: north`. `bk.stair()` builds these cells, and rotation remaps them.
-- **No physics or updates in `edit()`**: use glass blocks rather than panes, and
-  walls of solid blocks rather than fences, which won't connect. Gravel and sand
-  float until disturbed, and placed water stays still. Place torches, lanterns and
-  glowstone with `defer=True` (setblock) so their light updates.
+- **No physics or updates in `edit()`**, dict cells included: use glass blocks
+  rather than panes, and walls of solid blocks rather than fences, which won't
+  connect. Gravel and sand float until disturbed, and placed water stays still.
+  Place torches, lanterns and glowstone with `defer=True` (setblock) so their light
+  updates.
 - **Main overworld only**, Y -64..319. Cells outside are dropped, and the plan
   reports them.
 - **Size**: expect about 0.05 s per call plus about 150,000 cells/s. A 64x64 pixel

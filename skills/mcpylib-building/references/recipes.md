@@ -86,22 +86,27 @@ whatever is there, leave those cells out (`None`).
 - floor at y = 0
 - walls at y = 1..H, with logs at the corners
 - the interior cleared to air
-- a 1x2 doorway at the front centre
+- an oak door at the front centre, both halves given (`--door none` leaves a 1x2
+  opening)
 - glass windows every third block at y = 2 (and y = 3 when H ≥ 4)
 - a gable roof with an attic cleared to air
 - four torches, placed last with setblock
 
-Extensions that work with plugin 1.2.0:
+Extensions that work with plugin 1.2.1:
 - Interior walls: `grid.box(...)` with planks.
 - A second floor: a full plank layer, plus a ladder with `facing` pointing away from
   its wall.
 - Chimneys: a column of bricks.
 - Signs: `{"block": "oak_wall_sign", "block_state": {"facing": "south"}, "nbt": {"Text1": "Welcome"}}`
   on a wall.
+- Beds: one cell `{"block": "red_bed", "block_state": {"facing": "north"}}` is the
+  foot; the head is added one block toward `facing`.
+- Slab roofs or floors: `{"block": "oak_slab", "block_state": {"type": "top"}}`.
+- Trees: leaves with `{"persistent": "true"}`, so they don't decay.
 
 `buildings.py tower` builds:
 - a ring wall where cells satisfy r−0.5 < d ≤ r+0.5, on a solid disk floor
-- a doorway at +Z
+- a spruce door at +Z
 - windows every four levels
 - a platform at y = H+1
 - a ladder on the back wall, `facing: south`, passing through the platform

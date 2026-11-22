@@ -1,4 +1,4 @@
-# MCPyLib wire protocol (plugin 1.2.0)
+# MCPyLib wire protocol (plugin 1.2.1)
 
 Use this to talk to the MCPyLib plugin from any language. It is derived from the
 plugin source (`ClientHandler.java`, `CommandHandler.java`, `TokenManager.java`).
@@ -182,7 +182,7 @@ whether it worked. Plugins older than 1.2.0 freeze the server on them.
 
 ## bulkEdit encoding
 
-The fast format, used by the 1.2.0 Python client:
+The fast format, used by the 1.2.x Python client:
 
 ```json
 {"token": "...", "action": "bulkEdit", "params": {
@@ -203,16 +203,20 @@ The fast format, used by the 1.2.0 Python client:
    `"5,1,1,0"`. The runs must cover exactly `sizeX*sizeY*sizeZ` cells. If they cover
    fewer, the remaining cells get palette index 0.
 4. Compress that ASCII string with zlib (RFC 1950 stream, the default for
-   `zlib.compress` or `deflateSync`). Send the **complete** stream: plugin 1.2.0
-   inflates in a loop that never ends on empty or truncated data, which freezes
-   the server's main thread. Data that isn't zlib at all is rejected with an error.
+   `zlib.compress` or `deflateSync`). Send the **complete** stream: truncated or
+   corrupt data is rejected with `Invalid compressed block data (truncated or
+   corrupt)`, and data that inflates beyond 256 MB is rejected too.
 5. Encode it as standard base64 with padding. URL-safe base64 is rejected.
 
-The response `data` is the number of cells written. On the plugin's fast path,
-string palette entries are written directly into chunk sections, with no physics
-and no lighting update, and cells outside the world or naming items are skipped
-and not counted. Object entries with `block_state` or `nbt` get a second pass
-through the Bukkit API; `{"block": ...}` alone acts like a string.
+The response `data` is the number of cells written. Item ids in the palette are
+rejected before anything is written. On the plugin's fast path, string palette
+entries are written directly into chunk sections, with no physics and no lighting
+update, and cells outside the world are skipped and not counted. Object entries
+with `block_state` or `nbt`, block-entity blocks (chests, signs) and two-block
+blocks (doors, beds, tall plants) get a second pass through the Bukkit API, also
+without block updates; `{"block": ...}` alone acts like a string. A door's lower
+half or a bed's foot alone gets its other half added (not counted) unless the
+payload sets that cell.
 
 Legacy format: omit `encoding` and send `"blocks": [[[cell, ...], ...], ...]`, using
 the same cell values in `[x][y][z]` order. Every cell then goes through the slower

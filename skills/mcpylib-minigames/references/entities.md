@@ -57,8 +57,9 @@ mc.setEntityAI(uid, False)                             # statue / NPC: no moveme
 
 - `teleportEntity` dismounts an entity that rides something, then moves it. It
   returns `False`, without raising, when the server refuses, for example for an
-  entity that carries passengers. `setEntityRotation` also teleports, but always
-  returns `True`.
+  entity that carries passengers. `setEntityRotation` turns non-players in place,
+  including mounted entities and ones carrying passengers. Players are turned by a
+  teleport and stay mounted; if that teleport is cancelled it raises `CommandError`.
 - To face a point: `yaw = math.degrees(math.atan2(-(tx - x), tz - z))`.
 - `setEntityVelocity` also works on players (launch pads, knockback). Look the
   player's UUID up in `mc.list()`.
@@ -176,5 +177,5 @@ mc.exec(f"effect give {uid} minecraft:glowing 30 0 true")        # outline in te
   overworld.
 - Forget mobs that died (`tracker.forget_entity(uid)`) so the state file stays small.
 - As a last resort, an operator can type `/kill @e[tag=<game_id>]` in game, or a
-  script on plugin 1.2.0 can run `mc.exec("kill @e[tag=<game_id>]")`. Both only reach
+  script on plugin 1.2.0+ can run `mc.exec("kill @e[tag=<game_id>]")`. Both only reach
   loaded entities.

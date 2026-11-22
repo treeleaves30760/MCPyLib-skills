@@ -1,4 +1,4 @@
-# MCPyLib API reference (client and plugin 1.2.0)
+# MCPyLib API reference (client and plugin 1.2.1)
 
 Every signature line below matches `mcpylib/client.py` (checked by
 `tools/validate.py`). The behaviour notes come from the plugin's
@@ -58,7 +58,7 @@ Closes the persistent socket. `MCPyLib` is also a context manager
 connect; the first request does.
 
 Retries differ by client version:
-- **1.2.0**: a timeout raises `MCConnectionError` (`Timed out after <t>s waiting for
+- **1.2.x**: a timeout raises `MCConnectionError` (`Timed out after <t>s waiting for
   '<action>' (the command may still have run on the server)`) and is never retried.
   Only a reused connection that turns out to be dead before any reply byte arrives
   is reopened and the request sent once more.
@@ -67,12 +67,16 @@ Retries differ by client version:
 
 ## Blocks
 
-Block-state keys that work: `facing`, `rotation` (direction names such as `south` or
-`south_south_west`, not numbers), `axis`, `half` (`top`/`bottom`), `shape` (stairs),
-`waterlogged`, `open` and `powered`. Keys that don't apply to the block are ignored.
-Other keys fail with `Unsupported property: <key>`. NBT keys that work: `CustomName`
-(containers, plain text) and `Text1`..`Text4` (sign front lines). Other NBT keys are
-ignored.
+`block_state` accepts every vanilla property of the block, with vanilla values:
+`type` (`top`, `double`; chests `left`/`right`), `half` (`lower`/`upper` for doors),
+`hinge`, `part`, `lit`, `persistent`, `layers`, `age`, `hanging`, `rotation`
+(`0`-`15`), `power` and so on. Values are sent as strings; numbers and booleans are
+converted. Bukkit enum aliases still work for `facing`, `rotation` (`north`,
+`south_south_west`), `axis`, `half` (`top`/`bottom`), `shape`, `waterlogged`, `open`
+and `powered`. Any other key that the block doesn't have fails with
+`Unsupported property '<key>=<value>' for minecraft:<id>`; those eight alias names
+are ignored on blocks that lack them. NBT keys that work: `CustomName` (containers,
+plain text) and `Text1`..`Text4` (sign front lines). Other NBT keys are ignored.
 
 ### setblock
 `mc.setblock(x, y, z, block_name, block_state=None, nbt=None) -> int`
@@ -81,12 +85,16 @@ Places one block **with physics**, so falling blocks fall, unsupported blocks po
 and fluids flow. Then it applies `block_state` and `nbt`. Returns `1`, even for an
 out-of-range Y where nothing happened.
 
+Two-block blocks need both halves, in this order: a door's `half=upper` first, then
+`half=lower`; a bed's `part=head` first, then `part=foot`. In the other order the
+block update breaks the half placed first. `edit()` has no such ordering problem.
+
 Errors:
 - `Invalid block type: <name>`: nothing is placed (unknown name, or a `minecraft:`
-  prefix not in lower case).
-- `Failed to set block: ...`: the name is an item, not a block (`brick`, `diamond`).
-- `Failed to set block state '<key>': ...` or `Failed to set NBT data: ...`: the block
-  was already placed with its default state.
+  prefix not in lower case). Item ids get the suffix
+  `(this is an item, not a placeable block)` (`brick`, `diamond`).
+- `Failed to set block state: Unsupported property ...` or
+  `Failed to set NBT data: ...`: the block was already placed with its default state.
 
 ### getblock
 `mc.getblock(x, y, z) -> str`
@@ -110,7 +118,7 @@ are no physics and no neighbour updates, but lighting is updated. Returns the nu
 of cells processed, including any outside the world. **No size limit**: the server is
 blocked for the whole call (50,000 cells took about 0.8 s in the repository's
 pre-1.2.0 benchmark), so split large fills. Use `"air"` to clear. Item ids such as
-`brick` fail with `Failed to fill region: ...`.
+`brick` fail with `Invalid block type: brick (this is an item, not a placeable block)`.
 
 ### edit
 `mc.edit(x, y, z, blocks) -> int`
@@ -118,12 +126,12 @@ pre-1.2.0 benchmark), so split large fills. Use `"air"` to clear. Item ids such 
 Bulk-writes `blocks[dx][dy][dz]` with the minimum corner at `(x, y, z)`. A cell is a
 block id `str`, `None` (leave unchanged), or
 `{"block": id, "block_state": {...}, "nbt": {...}}`. Returns the number of non-None
-cells written (on the fast path, cells outside the world or naming items are neither
-written nor counted).
+cells written (on the fast path, cells outside the world are neither written nor
+counted; halves added for doors and beds are not counted).
 
 - The array must be rectangular, because the sizes come from `len(blocks)`,
   `len(blocks[0])` and `len(blocks[0][0])`.
-- The 1.2.0 client sends a compressed palette/RLE payload, which needs plugin 1.2.0;
+- 1.2.x clients send a compressed palette/RLE payload, which needs plugin 1.2.x;
   older plugins answer `Missing parameters: x, y, z, blocks`. 1.1.x clients send the
   legacy nested array, which works but goes through the slower Bukkit path.
 - On the fast path (used whenever the plugin's NMS access works), string cells are
@@ -131,13 +139,19 @@ written nor counted).
   lighting recalculation, and cells outside the world are skipped. If NMS access
   fails, every cell goes through Bukkit `setType` without physics instead, which
   does update lighting.
-- Dict cells **with `block_state` or `nbt`** get a second pass through the Bukkit
-  API, where states are applied and physics run. `{"block": "stone"}` alone
-  behaves like a string cell.
+- Dict cells **with `block_state` or `nbt`**, and blocks with block entities
+  (chests, signs, ...) or two halves (doors, beds, tall plants), get a second pass
+  through the Bukkit API. It applies states and creates block entities, still
+  without block updates. `{"block": "stone"}` alone behaves like a string cell.
+- Doors, beds and tall plants can be given as one cell (the lower half, the bed's
+  foot, or just `"red_bed"`): the other half is added (door: one block up; bed: the
+  head, one block toward `facing`), replacing whatever is there, unless the array
+  sets that position itself. With both halves given, any order works.
 - `Invalid block type in palette[i]: <name>` aborts before anything is written.
-  Item ids (`brick`, `diamond`) pass that check and are then silently skipped.
+  This includes item ids (`brick`, `diamond`).
 - An unsupported `block_state` key aborts with
-  `Failed to bulk edit (compressed): Unsupported property: <key>`. On the fast path
+  `Failed to bulk edit (compressed): Unsupported property '<key>=<value>' for
+  minecraft:<id>`. On the fast path
   every string cell was already written; on the Bukkit path only the cells before
   the failing one (in x, y, z order).
 
@@ -210,10 +224,10 @@ limit. This cannot be undone.
 
 - `action`: `add`, `set` or `query`. `target`: `points` or `levels`.
 - `set` with `points` sets the progress bar to `amount / points-to-next-level`,
-  clamped to 0..1. It does not set the total.
-- Returns `{"level": int, "points": int, "progress": float}`. `points` is the
-  player's total-experience counter, which `set` doesn't update, so after a `set`
-  it can disagree with `level` and `progress`.
+  clamped to 0..1, within the current level. It does not set the total.
+- Returns `{"level": int, "points": int, "progress": float}`. `points` is the total
+  XP computed from `level` and `progress` (vanilla formula), so it is correct after
+  `set` and after adding levels.
 
 ### enchant
 `mc.enchant(username, enchantment, level=1) -> bool`
@@ -328,9 +342,10 @@ Velocity in blocks per tick. Each component is clamped to +/-10.
 ### setEntityRotation
 `mc.setEntityRotation(entity_uuid, yaw, pitch) -> bool`
 
-Rotates the entity by teleporting it in place, so it dismounts a riding entity. It
-always returns `True`, even when the server refused (an entity carrying passengers
-doesn't turn).
+Non-player entities are rotated in place, including mounted entities and entities
+carrying passengers. Players are rotated by a teleport and stay on their vehicle. If
+a player's teleport is cancelled (by another plugin, for example), it raises
+`CommandError: Could not rotate player <name>: the teleport was cancelled ...`.
 
 - Yaw: 0 = south, 90 = west, 180 = north, 270 = east.
 - Pitch: -90 = up, 90 = down.
@@ -660,7 +675,7 @@ These methods build a vanilla command and run it as the server console with
   way, for example with `getblock`.
 - **Plugins older than 1.2.0 freeze the server** in these handlers: they waited on
   the main thread from the main thread, until the watchdog killed the server. Plugin
-  1.2.0 fixed this. Confirm the plugin version first: with a 1.2.0 client, the core
+  1.2.0 fixed this. Confirm the plugin version first: with a 1.2.x client, the core
   skill's `check_setup.py` warns when the plugin is older than 1.2.0.
 - The console can run any command. Never build a command from untrusted text, such
   as chat input or names with spaces or quotes.
@@ -729,7 +744,7 @@ from mcpylib import ConnectionError as MCConnectionError
 | Exception | Raised when |
 |---|---|
 | `MCPyLibError` | Base class of the three below |
-| `MCConnectionError` | The TCP connection can't be opened; with the 1.2.0 client also a timeout or a broken connection during a request. It is **not** the builtin `ConnectionError` |
+| `MCConnectionError` | The TCP connection can't be opened; with 1.2.x clients also a timeout or a broken connection during a request. It is **not** the builtin `ConnectionError` |
 | `AuthenticationError` | The server error text contains "token" (the server sends `Invalid token`) |
 | `CommandError` | Any other server error, such as `Unknown action: <name>` or `Player not found: <name>` |
 | `OSError` / `TimeoutError` | 1.1.x clients only: a send or receive failed twice (one automatic retry), and the socket error is re-raised unchanged |

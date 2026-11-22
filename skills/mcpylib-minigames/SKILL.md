@@ -2,11 +2,11 @@
 name: mcpylib-minigames
 description: Builds Minecraft minigames and live events in Python with MCPyLib. Covers fixed-rate polling loops with a per-tick call budget, join and leave detection, zones, countdowns, scoreboards and sidebars, teams, boss bars, titles, sounds and particles, summoning and controlling mobs (targets, AI, equipment, tags), and crash-safe cleanup that removes every entity, objective, boss bar and temporary block a game created. Includes ready-to-run King of the Hill and mob arena games. Use when the user wants a minigame, arena, race, parkour timer, wave survival, scoreboard, boss bar, countdown, announcement or other interactive event on a Minecraft server driven by Python, or needs to poll player positions or clean up after a game. Builds on the mcpylib skill for connection and API details.
 license: MCPyLib Non-Commercial License with Commercial Exception. Complete terms in LICENSE.txt
-compatibility: Requires Python 3.11+, the mcpylib package (1.2.0+ recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin.
+compatibility: Requires Python 3.11+, the mcpylib package (1.2.1 recommended) and a Paper/Spigot 26.1+ server with the MCPyLib plugin.
 metadata:
   author: treeleaves30760
-  version: "1.0.0"
-  mcpylib-version: "1.2.0"
+  version: "1.1.0"
+  mcpylib-version: "1.2.1"
 ---
 
 # Minigames with MCPyLib
@@ -86,7 +86,7 @@ restored at the end), `countdown`, `title_all` and `sound_all`.
 8. **Main overworld only.** `summon` and `particle` act there. `Roster` ignores
    players in the Nether or End.
 9. **Console commands are the last resort.** The dedicated methods have no action
-   bar and no clickable chat. On plugin 1.2.0, `exec` (for example
+   bar and no clickable chat. On plugin 1.2.0+, `exec` (for example
    `title <name> actionbar ...`) and `tellraw` fill that gap, but they report
    success even when the command fails, freeze older plugins, and must never carry
    untrusted text. Prefer titles, the sidebar and boss bars.

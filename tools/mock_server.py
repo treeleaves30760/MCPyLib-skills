@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline stand-in for the MCPyLib 1.2.0 server plugin, used by smoke_test.py.
+"""Offline stand-in for the MCPyLib 1.2.1 server plugin, used by smoke_test.py.
 
 It speaks the plugin's protocol: one JSON request per line,
 {"token", "action", "params"}, answered by {"success": true, "data": ...} or
@@ -10,7 +10,9 @@ The world is flat: bedrock at y=-64, stone up to y=63, grass_block at y=64, air
 above, void_air outside -64..319. The mock is strict where scripts tend to go
 wrong:
   - block ids: modern lower-case ids only (items and renamed ids are rejected)
-  - block_state: only the eight keys plugin 1.2.0 applies
+  - block_state: a fixed list of common vanilla properties (the plugin accepts
+    every property the block has; the mock doesn't know which block has which)
+    and does not add the missing half of doors and beds
   - compressed bulkEdit: palette indices and RLE length are checked
   - particles that need extra data fail, as they do on the server
   - entities can be marked unloaded (not found until their chunk is force-loaded)
@@ -44,9 +46,17 @@ STATE_VALUES = {
     "rotation": {"north", "north_north_east", "north_east", "east_north_east", "east",
                  "east_south_east", "south_east", "south_south_east", "south",
                  "south_south_west", "south_west", "west_south_west", "west",
-                 "west_north_west", "north_west", "north_north_west"},
+                 "west_north_west", "north_west", "north_north_west"} | {str(i) for i in range(16)},
     "axis": {"x", "y", "z"},
     "half": {"top", "bottom", "upper", "lower"},
+    "type": {"bottom", "top", "double", "single", "left", "right"},
+    "part": {"head", "foot"},
+    "hinge": {"left", "right"},
+    "lit": {"true", "false"},
+    "persistent": {"true", "false"},
+    "hanging": {"true", "false"},
+    "layers": {str(i) for i in range(1, 9)},
+    "age": {str(i) for i in range(26)},
     "shape": {"straight", "inner_left", "inner_right", "outer_left", "outer_right"},
     "waterlogged": {"true", "false"},
     "open": {"true", "false"},
@@ -158,7 +168,7 @@ class World:
             k = key.lower()
             v = str(value).lower()
             if k not in STATE_VALUES:
-                raise MockError(f"Unsupported property: {key}")
+                raise MockError(f"Unsupported property '{key}={value}'")
             if v not in STATE_VALUES[k]:
                 raise MockError(f"No enum constant for {k}: {value}")
             out[k] = v

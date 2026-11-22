@@ -253,6 +253,9 @@ def house_and_tower():
         check(env.actions("setblock"), "torches should be placed with setblock()", proc)
         houses = [k for k in env.world.blocks if k[2] > 3]
         check(houses, "house should be south of Steve (yaw 0 faces south)", proc)
+        halves = sorted(s.get("half") for k, s in env.world.states.items()
+                        if env.world.blocks.get(k) == "minecraft:oak_door")
+        check(halves == ["lower", "upper"], f"house door halves: {halves}", proc)
         proc = env.run(BUILD / "buildings.py", "tower", "--radius", 3, "--height", 6,
                        "--at", 60, 65, 60, "--apply")
         ok(proc, "Built:")

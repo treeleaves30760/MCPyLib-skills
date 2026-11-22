@@ -8,9 +8,9 @@
 Corners are inclusive and may be given in any order. Reads and writes are split
 into chunk-aligned pieces of at most --max-cells cells (default 65536).
 
-Limits (MCPyLib 1.2.0): getblocks() returns block *types* only, so a restore
-puts back the right blocks but default states (stair/log orientation, door
-halves) and no container contents or sign text. restore only writes cells that
+Limits (MCPyLib 1.2.1): getblocks() returns block *types* only, so a restore
+puts back the right blocks but default states (stair/log orientation; both door
+cells come back as lower halves) and no container contents or sign text. restore only writes cells that
 differ from the snapshot unless --all is given, and is a dry run unless --apply.
 
 Connection settings: MCPYLIB_HOST / MCPYLIB_PORT / MCPYLIB_TOKEN (or SERVER_IP /

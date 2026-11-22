@@ -5,11 +5,13 @@
   python buildings.py house --walls spruce_planks --roof-stairs dark_oak_stairs --at 100 64 200 --front east --apply
   python buildings.py tower --radius 4 --height 14 --top cone --player Steve --apply
 
-The front (doorway) faces the player when --player is used, otherwise --front
+The front (door) faces the player when --player is used, otherwise --front
 (default south). Windows are full glass blocks, because panes placed by edit()
-don't connect. The doorway is left open, because doors need block states that
-MCPyLib 1.2.0 can't set. Torches are placed last with setblock() so their light
-updates. The interior is cleared to air unless --no-clear is given.
+don't connect. The door is placed by edit() with both halves given explicitly
+(needs plugin 1.2.1; older plugins break the halves), so both cells are in the
+survey and undo file; --door none leaves an open doorway. Torches are placed
+last with setblock() so their light updates. The interior is cleared to air
+unless --no-clear is given.
 """
 from __future__ import annotations
 
@@ -19,7 +21,17 @@ import sys
 import buildkit as bk
 
 
-def house(w: int, d: int, h: int, mats: dict, clear: bool) -> bk.Grid:
+def door(g: bk.Grid, x: int, z: int, block: str) -> None:
+    """A door in the front (+Z) wall at y = 1..2, opening inward; 'none' leaves it open."""
+    if block.lower() in ("none", "air"):
+        for y in (1, 2):
+            g.set(x, y, z, "air")
+        return
+    for y, half in ((1, "lower"), (2, "upper")):
+        g.set(x, y, z, {"block": block, "block_state": {"facing": "north", "half": half}})
+
+
+def house(w: int, d: int, h: int, mats: dict, clear: bool, door_block: str) -> bk.Grid:
     if w < 5 or d < 5 or h < 3:
         sys.exit("house needs --width >= 5, --depth >= 5, --wall-height >= 3")
     g = bk.Grid()
@@ -37,8 +49,7 @@ def house(w: int, d: int, h: int, mats: dict, clear: bool) -> bk.Grid:
                     g.set(x, y, z, mats["walls"])
                 elif clear:
                     g.set(x, y, z, "air")
-    for y in (1, 2):
-        g.set(door_x, y, z1, "air")
+    door(g, door_x, z1, door_block)
     for y in [2] + ([3] if h >= 4 else []):
         for z in range(z0 + 2, z1 - 1, 3):
             g.set(x0, y, z, mats["windows"])
@@ -71,7 +82,7 @@ def house(w: int, d: int, h: int, mats: dict, clear: bool) -> bk.Grid:
     return g
 
 
-def tower(r: int, h: int, mats: dict, top: str, clear: bool) -> bk.Grid:
+def tower(r: int, h: int, mats: dict, top: str, clear: bool, door_block: str) -> bk.Grid:
     if r < 2 or h < 4:
         sys.exit("tower needs --radius >= 2 and --height >= 4")
     g = bk.Grid()
@@ -86,8 +97,7 @@ def tower(r: int, h: int, mats: dict, top: str, clear: bool) -> bk.Grid:
         elif clear:
             for y in range(1, h + 1):
                 g.set(dx, y, dz, "air")
-    for y in (1, 2):
-        g.set(0, y, r, "air")  # doorway in the front (+Z) wall
+    door(g, 0, r, door_block)  # front (+Z) wall
     for y in range(3, h, 4):
         for x, z in ((r, 0), (-r, 0), (0, -r)) + (((0, r),) if y >= 5 else ()):
             if (x, z) in ring:
@@ -126,6 +136,7 @@ def main() -> int:
     p.add_argument("--windows", default="glass")
     p.add_argument("--roof-stairs", default="spruce_stairs")
     p.add_argument("--roof-block", default="spruce_planks")
+    p.add_argument("--door", default="oak_door", help="door block, or 'none' for an open doorway")
     p.add_argument("--no-clear", action="store_true", help="don't clear the interior to air")
     bk.add_common_args(p)
 
@@ -137,6 +148,7 @@ def main() -> int:
     t.add_argument("--windows", default="glass")
     t.add_argument("--roof-block", default="dark_oak_planks")
     t.add_argument("--top", choices=("battlements", "cone"), default="battlements")
+    t.add_argument("--door", default="spruce_door", help="door block, or 'none' for an open doorway")
     t.add_argument("--no-clear", action="store_true")
     bk.add_common_args(t)
     args = ap.parse_args()
@@ -144,9 +156,9 @@ def main() -> int:
     mats = {k: getattr(args, k) for k in
             ("floor", "walls", "windows", "roof_block", "corners", "roof_stairs") if hasattr(args, k)}
     if args.kind == "house":
-        grid = house(args.width, args.depth, args.wall_height, mats, not args.no_clear)
+        grid = house(args.width, args.depth, args.wall_height, mats, not args.no_clear, args.door)
     else:
-        grid = tower(args.radius, args.height, mats, args.top, not args.no_clear)
+        grid = tower(args.radius, args.height, mats, args.top, not args.no_clear, args.door)
 
     with bk.connect(args) as mc:
         anchor, turns = bk.resolve_placement(mc, args, grid)
